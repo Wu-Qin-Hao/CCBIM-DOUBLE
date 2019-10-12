@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>CCBIM</title>
+</head>
+
+<body>
+  <div id="app">
+    <model
+    :url-Ip="urlIp"
+    worker-Url="../DataWorker.js"
+    web-Gl-Font-Url="../gentilis_regular.typeface.json"
+    version="aa5500b6-0aad-2c91-8087-00445f1d1597"
+    @selected-geometry='selectedGEO'></model>
+  </div>
+  <!-- 生产环境版本，优化了尺寸和速度 -->
+  <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+  <script src="../CCBIM.js"></script>
+  <script>
+
+    Vue.use(CCBIM.install)
+    new Vue({
+      el: '#app',
+      data () {
+        return {
+          // 获取模型数据接口ip
+          urlIp: 'http://172.16.9.28:8081'
+        }
+      },
+      mounted () {
+        window.$CCBIM.render.$ccbimRun()
+      },
+      methods: {
+        selectedGEO (data) {
+          console.log(data)
+        }
+      }
+    })
+  </script>
+</body>
+
+</html>

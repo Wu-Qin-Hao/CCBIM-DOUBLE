@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>CCBIM</title>
+</head>
+
+<body>
+  <div id="app">
+    <model
+    :url-Ip="urlIp"
+    worker-Url="../DataWorker.js"
+    web-Gl-Font-Url="../gentilis_regular.typeface.json"
+    version="a94b0136-e702-2c91-8084-00112ba7cd2e"
+    :ccbim-Texture-Type=1
+    :is-Sim-Color-Mode='true'></model>
+    <!-- 要使用单颜色绘制模式 前提条件是:ccbim-Texture-Type=1颜色模式开启 -->
+  </div>
+  <!-- 生产环境版本，优化了尺寸和速度 -->
+  <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+  <script src="../CCBIM.js"></script>
+  <script>
+    Vue.use(CCBIM.install)
+    new Vue({
+      el: '#app',
+      data () {
+        return {
+          // 获取模型数据接口ip
+          urlIp: 'http://172.16.9.28:8081'
+        }
+      },
+      mounted () {
+        // 运行webGL
+        window.$CCBIM.render.$ccbimRun({
+          clearColor: '#312ED8'
+        })
+      }
+    })
+  </script>
+</body>
+
+</html>

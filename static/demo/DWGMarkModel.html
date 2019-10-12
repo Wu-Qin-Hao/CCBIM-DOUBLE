@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>CCBIM</title>
+</head>
+
+<body>
+  <div id="app">
+      <button @click="modelMarkListRequest">加载标注点列表</button>
+      <button @click="addModelMarkRequest">添加标注点</button>
+      <button @click="removeModelMarkRequest">删除标注点</button>
+    <dwg
+    :url-Ip="urlIp"
+    proto-Url="../gemotry.proto"
+    web-Gl-Font-Url="../gentilis_regular.typeface.json"
+    :model-Mark="modelMarks"
+    version="aa3d010c-bb27-2c91-8082-01b975e1f377"></dwg>
+  </div>
+  <!-- 生产环境版本，优化了尺寸和速度 -->
+  <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+  <script src="../CCBIM.js"></script>
+  <script>
+
+    Vue.use(CCBIM.install)
+    new Vue({
+      el: '#app',
+      data () {
+        return {
+          // 获取模型数据接口ip
+          urlIp: 'http://172.16.9.28:8081',
+          modelMarks: [], // 保存标注点的信息
+          userList: [] // 这是第三方用户自己保存的标注点信息列表
+        }
+      },
+      mounted () {
+        window.$CCBIM.render.$ccbimRun()
+      },
+      methods: {
+        modelMarkListRequest (userList) {
+          // 模型标注列表的请求
+          window.$CCBIM.render.$modelMarkListRequest().then((markList) => {
+            console.log(markList)
+            // 需要做一个对象合并，将标注点信息合并到使用方数据内使用
+            // userList代表使用方的保存下来的标记列表
+            for (let i = 0; i < userList.length; i++) {
+              for (let j = 0; j < markList.length; j++) {
+                if (userList[i].mpId === markList[j].markingPointId) {
+                  Object.assign(userList[i], {pointId: markList[j].markingPointId})
+                  Object.assign(userList[i], {pointInfo: markList[j].pointInfo})
+                  break
+                }
+              }
+            }
+            // 模型场景中加入标注点
+            this.modelMarks = []
+            for (let i = 0; i < userList.length; i++) {
+              let obj = userList[i].pointInfo
+              // obj = {
+              //   id: '区分标注点',
+              //   iconImg: '标注点的图片样式'(默认),
+              //   color: '标记点的颜色'(如果有图片又有颜色则使用颜色),
+              //   iconText: '文字'(标记文字)
+              // }
+              Object.assign(obj, {'id': userList[i].pointId})
+              Object.assign(obj, {'color': '#333'})
+              Object.assign(obj, {'iconText': 'wuqinhao'})
+              this.modelMarks.push(obj)
+            }
+          })
+        },
+        addModelMarkRequest () {
+          // 添加模型标注的请求
+          window.$CCBIM.render.$addModelMarkRequest().then((item) => {
+            // 返回添加标注的id
+            // 1.拿到标注id后使用方做业务操作
+            console.log(item)
+            this.userList.push({
+              mpId: item.result
+            })
+            // 2.业务操作成功后刷新标注点列表
+            this.modelMarkListRequest(this.userList)
+          })
+        },
+        removeModelMarkRequest () {
+          console.log(this.modelMarks)
+          // 删除模型标注的请求
+          if (this.modelMarks[0]) {
+            // 拿到要删除的标注点id，调用接口
+            window.$CCBIM.render.$removeModelMarkRequest(this.modelMarks[0].id).then(() => {
+              // 1.删除成功后，使用方删除相应的标注点业务数据
+              // 2.modelMarks数组中删除对应的标注，模型场景内的标注就会消失
+              this.modelMarks.shift()
+            })
+          }
+        }
+      }
+    })
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,261 @@
+package tutorial;
+
+// geometry信息
+
+message DataInfo
+{
+	enum DataType
+	{
+		eTriangle = 1;
+		eMesh = 2;
+		eCircleTube = 3;	//圆管
+	}
+
+	required int32 uuid=1;   ///1
+	repeated float vertices=2;	//几何体位置信息   ///1
+	repeated float normals=3;	//面法线向量    ///1
+	repeated float uvs=4;			//几何体纹理坐标信息   ///1
+	repeated int32	face=5;		//面信息   ///1
+	required int32			 material=6;   ///1
+	required bool			visible=7;		//是否隐藏   ///1
+	required bool		canSelect=8;     ///1
+	repeated int32   stageId=9;	//阶段id 队列    ///1
+}
+
+message CGeomeryInfo
+{
+	repeated DataInfo Geomery=1;
+	repeated COctree_NodeGJInfo NodeGjInfo=2;
+}
+
+message COctree_NodeGJInfo
+{
+
+	message  COctree_NodeGJInfo_SimGeo
+	{
+	enum EntType
+		{
+			eTriangle = 0;
+			eRefEnt = 1;
+		}
+		required int32 id=1;			//构件唯一标示符
+		required int32 uid=2;			//Geo 数据编号
+		required EntType ET=3;		// T 三角形 R 引用体
+		required float BoxMinPoint=4;
+		required float BoxMaxPoint=5;
+		repeated int32 StageIdArr=14;  //2018.9.11新增加字段
+	}
+
+	message  COctree_NodeGJInfo_Matrix
+	{
+		enum EntType
+		{
+			eTriangle = 0;
+			eRefEnt = 1;
+		}
+		required int32 id=1;			//构件唯一标示符
+		required int32 uid=2;			//Geo 数据编号
+		required string ET=3;		// T 三角形 R 引用体
+
+		repeated float BoxMinPoint=4;
+		repeated float BoxMaxPoint=5;
+
+		repeated float MT=6;
+		repeated int32 StageIdArr=14;  //2018.9.11新增加字段
+	}
+
+
+
+
+	message  COctree_NodeGJInfo_Triangle
+	{
+		enum EntType
+		{
+			eTriangle = 0;
+			eRefEnt = 1;
+		}
+		required int32 id=1;			//构件唯一标示符
+		required int32 uid=2;			//Geo 数据编号
+		required string ET=3;	// T 三角形 R 引用体
+
+		repeated float BoxMinPoint=4;
+		repeated float BoxMaxPoint=5;
+
+		required int32 VS=6;	//顶点起始位置
+		required int32 VC=7;	//顶点数据个数
+		required int32 US=8;		//Uv起始位置
+		required int32 UC=9;		//Uv数据个数
+		required int32 FNS=10;	//面法线起始位置
+		required int32 FNC=11;	//面法线个数
+		required int32 FaceindexStart=12; //faceindex起点位置
+		required int32 FaceindexCount=13;	//faceindex个数
+		repeated int32 StageIdArr=14;  //2018.9.11新增加字段
+	}
+
+
+
+
+	required int32 CT=1;   //
+	required int32 NI=2;   //
+	required int32 fid=3;   //
+	required int32 ComID=4;   //
+	required string hid=5;   //
+
+	repeated COctree_NodeGJInfo_Triangle m_TriangleArr=6;
+	repeated COctree_NodeGJInfo_Matrix m_refTriangleArr=7;
+}
+
+/////Compoent
+// 楼层线条信息
+
+message AxisNetLine		//ok
+{
+	required float textHeight=1;
+	required float textRoundRadius=2;
+	required string	name=3;
+	repeated float textInsert=4;
+	repeated float start=5;
+	repeated float end=6;
+}
+
+message AxisNetArc		//ok
+{
+	required float textHeight=1;
+	required float textRoundRadius=2;
+	required string name=3;
+	repeated float textInsert=4;
+	repeated float center=6;
+	required float radius=8;
+	required float startAngle=9;
+	required float endAngle =10;
+	required string antiClockWise=11;
+}
+message line
+{
+	repeated  float start=1;
+	repeated  float end=2;
+}
+
+message OneFloorCrossLineInfo	//ok
+{
+	required int32 floorId=1;
+	required float floorHeight=2;//楼层高度
+	required float floorElevation=3;//楼底面标高
+	required string floorName=4;
+
+	repeated AxisNetLine axisNetLineArray=5;
+	repeated AxisNetArc axisNetArcArray=6;
+	repeated line crossLines=7;
+}
+message FloorCrossLineGroup		//ok
+{
+	repeated OneFloorCrossLineInfo floorPlanGraph=1;
+}
+
+
+message GjInfo_index		//ok
+{
+	required string name=1;
+	required int32 id=2;
+	repeated string handleInfo=3;//存放id号
+}
+
+message ComtypeInfo_gjinfoindex		//ok
+{
+	required string uuid=1;
+	required int32 id=2;
+	required string name=3;
+	required int32 bId=4;
+	required string bName=5;
+	repeated GjInfo_index gjInfo=6;
+}
+
+
+
+message SubComtypeInfo_gjinfoindex		//2018.7.20 新增加构件表示
+{
+
+	required int32 id=1;
+	required string name=2;
+	optional string uuid=4;
+	repeated GjInfo_index gjInfo=3;
+}
+
+
+
+message ComtypeGroupInfo_gjinfoindex		//2018.7.20 增加构件组
+{
+	required int32 bId=1;
+	required string bName=2;
+	repeated SubComtypeInfo_gjinfoindex subcomtypeInfo=3;
+}
+
+//楼层
+message SimFloorInfoAddCAxisNet  //ok
+{
+	required int32 floorid=1;
+	required string floorname=2;
+	required int32 showid=3;
+	repeated ComtypeInfo_gjinfoindex comtypeInfo=4;
+	repeated ComtypeGroupInfo_gjinfoindex comtypeGroupInfo=5;  //2018.7.20 增加构件组列表	如果这个内容是存在的,那么说明是升级了的.
+}
+
+
+
+//阶段
+message CBuildStageInfo		//ok
+{
+	required int32 stageid=1;
+	required string stagename=2;
+}
+
+
+//单个建筑
+message CSimBuildInfo			//ok
+{
+	required int32 buildid=1;
+	required string buildname=2;
+	repeated SimFloorInfoAddCAxisNet floors=3;
+}
+
+message UserDataInfo		//         //2018.7.31服务器缓存的类.
+{
+	required string strName=1;
+	required string strValue=2;
+}
+
+message HandleInfo			//ok           //2018.7.31服务器缓存的类.
+{
+	required int32 floorid=1;
+	required string id=2;
+	repeated UserDataInfo userData=3;
+	repeated int32 parmtextindex=4;  //2018.7.19增加
+}
+
+//建筑群
+message CBuildProject			//ok
+{
+	repeated CSimBuildInfo builds=1;
+	repeated CBuildStageInfo stages=2;
+}
+
+//建筑群
+message CBuildProject_map			//ok			//2018.7.31服务器缓存的类.
+{
+	repeated HandleInfo handleinfos=1;
+	repeated string parmtextlist=2;		//2018.7.19增加
+}
+
+
+
+//构件信息
+message CComponentsInfoAddBuildinfo  //ok
+{
+	required CBuildProject m_pBuildproject=1;
+}
+
+//构件表信息
+message CComponentsInfoAddBuildinfoMap  //ok
+{
+	required CBuildProject_map m_pBuildproject_map=1;
+}
